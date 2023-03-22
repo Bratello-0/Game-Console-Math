@@ -1,14 +1,13 @@
-﻿using System;
-
-namespace Game4
+﻿
+namespace MathGameConsole.Src.Extension
 {
     public static class IntExtension
     {
-        private static Random random;
+        private static Random? random;
         public static int RandomNumber(this int start, int end)
         {
             random = new Random();
-            return  random.Next(start, end);
+            return random.Next(start, end);
         }
         public static int RandomNumber(this int start)
         {

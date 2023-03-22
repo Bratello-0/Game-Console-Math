@@ -1,20 +1,25 @@
-﻿using System;
-using System.Linq;
+﻿using MathGameConsole.Enum;
+using MathGameConsole.Src.MathGame.Digit;
 
-namespace Game4
-{ 
-    partial class MathGame
+namespace MathGameConsole.Src.GameLogic
+{
+    public partial class MathGame
     {
         private Example ExampleObj { get; set; }
-        private int glasses = 0;
+        private int score = 0;
         private long result = 0;
         private int headPoint = 3;
         private const int maxHeadPoint = 3;
         private bool isGameOver = false;
-        //private SettingsConfig Settings { get; set; }
-        public NumberDigits NumDigits { get; private set; }
-        public Difficulty LevelGame { get; private set; }
+
+        public NumberDigits NumberDigits { get; private set; }
+        public Difficulty difficulty { get; private set; }
         public Operation TypeOperation { get; private set; }
+
+        public MathGame()
+        {
+            SetSettings();
+        }
 
         public int HeadPoint
         {
@@ -29,26 +34,21 @@ namespace Game4
                 }
             }
         }
-        public int Glasses
+        public int Score
         {
-            get => glasses;
+            get => score;
             private set
             {
-                glasses += ((int)LevelGame * (int)NumDigits) + 1 + (int)TypeOperation;
+                score += (int)difficulty * (int)NumberDigits + 1 + (int)TypeOperation;
             }
         }
 
-        public MathGame()
+        private Difficulty StringToDifficulty(string stringDifficulty)
         {
-            SetSettings();
-        }
-
-        private Difficulty StrToIntDLevel(string str)
-        {
-            if (str.Length == 0)
+            if (stringDifficulty.Length == 0)
                 return Difficulty.Easy;
-            str = str.ToLower();
-            switch (str[0])
+            stringDifficulty = stringDifficulty.ToLower();
+            switch (stringDifficulty[0])
             {
                 case 'h':
                     return Difficulty.Hard;
@@ -59,11 +59,10 @@ namespace Game4
                     return Difficulty.Easy;
             }
         }
-        private NumberDigits StrToIntNDigits(string str)
+        private NumberDigits StringToNumberDigits(string stringNumberDigit)
         {
-            if (str.Length == 0)
-                return NumberDigits.OneDigits;
-            switch (str[0])
+            if (stringNumberDigit.Length == 0) { return NumberDigits.OneDigits; }
+            switch (stringNumberDigit[0])
             {
                 case '3':
                     return NumberDigits.ThereeDigits;
@@ -74,12 +73,11 @@ namespace Game4
                     return NumberDigits.OneDigits;
             }
         }
-        private Operation StrToIntTOperation(string str)
+        private Operation StringToOperation(string stringOperation)
         {
-            if (str.Length == 0)
-                return Operation.Addition;
-            str = str.ToLower();
-            switch (str[0])
+            if (stringOperation.Length == 0) { return Operation.Addition; }
+            stringOperation = stringOperation.ToLower();
+            switch (stringOperation[0])
             {
                 case 'a':
                     return Operation.AllOperations;
@@ -95,26 +93,26 @@ namespace Game4
 
         private void CheckResult()
         {
-            if (ExampleObj.Result != this.result)
+            if (ExampleObj.Result != result)
             {
-                Console.WriteLine($"НЕ ПРАВИЛЬНО!!! ПОПРОБУЙ ЕЩЕ РАЗ\nПравильный ответ:{ExampleObj.Result}");
+                Console.WriteLine($"Не правильно!!!\nПравильный ответ:{ExampleObj.Result}");
                 HeadPoint--;
                 return;
             }
             Console.WriteLine($"Правильно!!!");
-            Glasses++;
+            Score++;
         }
 
         private void GameOver()
         {
-            Console.WriteLine($"Вы проиграли!!!(((\nКоличество очков: {Glasses}");
+            Console.WriteLine($"Вы проиграли!!!(((\nКоличество очков: {Score}");
             isGameOver = !isGameOver;
         }
 
         private bool GiveAnswer(string AnswerUser)
         {
             AnswerUser = new string(AnswerUser.Select(s => s)
-                .Where(s => s == '-' || (s >= '0' && s <= '9')).ToArray());
+                .Where(s => s == '-' || s >= '0' && s <= '9').ToArray());
             if (AnswerUser.Any())
             {
                 result = long.Parse(AnswerUser);
@@ -124,26 +122,26 @@ namespace Game4
             return true;
         }
 
-        private bool EnterSettings(string str) => (str.Any() && str == "def");
+        private bool IsDeffoutSettings(string answer) => answer.Any() && answer == "def";
 
-        private bool Choice(string text, ref string strSetting)
+        private bool Choice(string text, ref string setting)
         {
             Console.Write(text);
-            strSetting = Console.ReadLine();
-            if (EnterSettings(strSetting)) { DefaultSetting(); return true; }
+            setting = Console.ReadLine();
+            if (IsDeffoutSettings(setting)) { DefaultSetting(); return true; }
             return false;
         }
 
         public void Start()
         {
-            ExampleObj = new Example(LevelGame, NumDigits, TypeOperation);
+            ExampleObj = new Example(difficulty, NumberDigits, TypeOperation);
             PrintHelp();
             while (!isGameOver)
             {
                 ShowExample();
                 if (CheckingCommand()) { continue; }
                 CheckResult();
-                ExampleObj.Update(LevelGame, NumDigits, TypeOperation);
+                ExampleObj.Update(difficulty, NumberDigits, TypeOperation);
             }
         }
     }

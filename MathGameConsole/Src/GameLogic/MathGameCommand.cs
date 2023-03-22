@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using MathGameConsole.Enum;
 
-
-namespace Game4
+namespace MathGameConsole.Src.GameLogic
 {
-    partial class MathGame
+    public partial class MathGame
     {
         //обработчик команд
         private bool CheckingCommand()
@@ -25,7 +23,7 @@ namespace Game4
                     if (strLine == "\\help") { PrintHelp(); return true; }
                     if (strLine == "\\headpoint") { PrintHeadPoint(); return true; }
                     if (strLine == "\\restart") { Restart(); return true; }
-                    if (strLine == "\\glasses") { PrintGlasses(); return true; }
+                    if (strLine == "\\score") { PrintScore(); return true; }
                     if (strLine == "\\clear") { ClearConsole(); return true; }
                     if (strLine == "\\example") { ShowExample(); return true; }
                     if (strLine == "\\HESOYAM") { WinExample(); return true; }
@@ -45,12 +43,12 @@ namespace Game4
         private void DefaultSetting()
         {
             Console.WriteLine("Настройки по умолчанию");
-            LevelGame = Difficulty.Normal;
-            NumDigits = NumberDigits.OneDigits;
+            difficulty = Difficulty.Normal;
+            NumberDigits = NumberDigits.OneDigits;
             TypeOperation = Operation.AllOperations;
         }
-        private void ShowExample() => Console.WriteLine("Пример:"+ExampleObj);
-        private void PrintGlasses() => Console.WriteLine("Количество очков: " + Glasses);
+        private void ShowExample() => Console.WriteLine("Пример:" + ExampleObj);
+        private void PrintScore() => Console.WriteLine("Количество очков: " + Score);
         private void SetSettings()
         {
             string strSetting = "";
@@ -60,17 +58,17 @@ namespace Game4
                 if (Choice("Выбери уровень сложности \nHard\\Normal\\Easy\n-",
                         ref strSetting))
                     break;
-                LevelGame = StrToIntDLevel(strSetting);
+                difficulty = StringToDifficulty(strSetting);
 
                 if (Choice("Выбери кол-во символов в числе \n1\\2\\3\n-",
                         ref strSetting))
                     break;
-                NumDigits = StrToIntNDigits(strSetting);
+                NumberDigits = StringToNumberDigits(strSetting);
 
                 if (Choice("Выбери тип примера \n+|-\\*\\All\n-",
                         ref strSetting))
                     break;
-                TypeOperation = StrToIntTOperation(strSetting);
+                TypeOperation = StringToOperation(strSetting);
 
                 PrintSettings();
                 Console.Write($"Согласны с выбранными настройками?\nyes\\no\n-");
@@ -84,25 +82,25 @@ namespace Game4
 
         public void PrintSettings()
         {
-            Console.WriteLine(@$"Выбрана сложность: {LevelGame}");
-            Console.WriteLine($"Выбрано кол-во символов в числе: {(int)NumDigits}");
+            Console.WriteLine($"Выбрана сложность: {difficulty}");
+            Console.WriteLine($"Выбрано кол-во символов в числе: {(int)NumberDigits}");
             Console.WriteLine($"Выбран тип примера: {TypeOperation}");
         }
 
-        private void WinExample() 
+        private void WinExample()
         {
             headPoint = 3;
             Console.WriteLine($"Правильно!!!");
-            Console.WriteLine($"Ответ:"+ ExampleObj.Result);
-            Glasses++;
-            ExampleObj.Update(LevelGame, NumDigits, TypeOperation);
+            Console.WriteLine($"Ответ:" + ExampleObj.Result);
+            Score++;
+            ExampleObj.Update(difficulty, NumberDigits, TypeOperation);
         }
 
-        public void PrintHelp()
+        public static void PrintHelp()
         {
             Console.WriteLine("Необходимо решить пример\nВвод только из натуральных чисел и 1 знака \'-\'");
             Console.WriteLine("Список доступных команд:" +
-                "\\help, \\glasses, \\settings, \\headpoint, " +
+                "\\help, \\score, \\settings, \\headpoint, " +
                 "\\restart, \\clear");
         }
 
@@ -110,9 +108,9 @@ namespace Game4
         {
             headPoint = maxHeadPoint;
             SetSettings();
-            ExampleObj.Update(LevelGame, NumDigits, TypeOperation);
+            ExampleObj.Update(difficulty, NumberDigits, TypeOperation);
         }
         public void PrintHeadPoint() => Console.WriteLine($"Осталось жизней: {headPoint}");
-        private void ClearConsole() => Console.Clear();
+        private static void ClearConsole() => Console.Clear();
     }
 }
